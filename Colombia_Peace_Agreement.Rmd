@@ -1,0 +1,73 @@
+---
+title: "Colombia's Peace Agreement"
+author: Patrick Machado
+date: 29 jun 2019
+output: html_notebook
+---
+
+---
+
+*"Voters in Colombia have rejected a landmark peace deal with Farc rebels in a shock referendum result, with 50.2% voting against it."*
+
+*[BBC News, 3 oct 2016](https://www.bbc.com/news/world-latin-america-37537252)*
+
+
+```{r Peacemap, echo=FALSE, fig.height=6.5, fig.width=8.4, message=FALSE}
+
+library(leaflet)
+
+Colombia.vote <- read.csv('Colombia.vote.csv')
+
+# C. Iconos 
+
+icono.si <- makeIcon(
+    iconUrl = "secure-shield.png",
+    iconWidth = 31*215/230, iconHeight = 31,
+    iconAnchorX = 31*215/230/2, iconAnchorY = 16
+)
+
+icono.no <- makeIcon(
+    iconUrl = "banned.png",
+    iconWidth = 31*215/230, iconHeight = 31,
+    iconAnchorX = 31*215/230/2, iconAnchorY = 16
+)
+
+icono.Colombia <- makeIcon(
+    iconUrl = "banned.png",
+    iconWidth = 42*215/230, iconHeight = 42,
+    iconAnchorX = 42*215/230/2, iconAnchorY = 21
+)
+
+ajustes <- Colombia.vote$winner == 'Yes'
+ajustes2 <- Colombia.vote$departamento == 'COLOMBIA'
+
+# Map
+peace <- leaflet() %>% 
+    addTiles() %>%
+    addMarkers(data = Colombia.vote[ajustes, ],
+               popup = Colombia.vote$legend[ajustes], 
+               icon = icono.si)  %>%
+    addMarkers(data = Colombia.vote[!ajustes & !ajustes2, ],
+               popup = Colombia.vote$legend[!ajustes & !ajustes2], 
+               icon = icono.no) %>%
+    addMarkers(data = Colombia.vote[ajustes2, ],
+               popup = Colombia.vote$legend[ajustes2], 
+               icon = icono.Colombia) 
+
+peace
+
+```
+
+
+
+Sources:
+
+- Voting results: [data.world/juanbeta](https://data.world/juanbeta/colombia-votacin-por-la-paz-si-no-por-departamento)
+
+- Colombia's geographical information: [dane.gov.co](https://geoportal.dane.gov.co/consultadivipola.html)
+
+- Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
+
+- Comments: [BBC News, 3 oct 2016](https://www.bbc.com/news/world-latin-america-37537252)
+
+
