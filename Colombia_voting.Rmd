@@ -1,0 +1,213 @@
+---
+title: "Colombia's Peace Agreement voting"
+author: "Patrick Machado"
+date: "5 jul 2019"
+output: ioslides_presentation
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## BBC News, 3 oct 2016
+
+
+*Voters in Colombia have rejected a landmark peace deal with Farc rebels in a shock referendum result, with 50.2% voting against it.*
+
+*The deal was signed last week by President Juan Manuel Santos and Farc leader Timoleon Jimenez after nearly four years of negotiations.*
+
+*But it needed to be ratified by Colombians in order to come into force.*
+
+*Addressing the nation, President Santos said he accepted the result but would continue working to achieve peace.*
+
+*[BBC News, 3 oct 2016](https://www.bbc.com/news/world-latin-america-37537252)*
+
+---
+
+```{r p_votes, echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+
+# A. Datos
+# Leer datos
+Colombia.vote <- read.csv('Colombia.vote.csv')
+
+
+# B. Back to back chart
+
+
+# load packages
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(plotly)
+library(readr)
+
+# prepare data for plotting
+plotting_df <- Colombia.vote %>%  
+    # select(departamento, si, no) %>% 
+    transmute(Departamento = departamento,
+           Si = parse_number(as.character(si), locale = 
+                                 locale(grouping_mark = ".")), 
+           No = -1 *parse_number(as.character(no), locale = 
+                                locale(grouping_mark = "."))
+           ) %>% 
+    gather(key = "Vote", value = "Count", -Departamento)
+
+plotting_df2 <- Colombia.vote %>%  
+    # select(departamento, si, no) %>% 
+    transmute(Departamento = departamento,
+              Si = si.porc, 
+              No = -1 * no.porc ) %>% 
+    gather(key = "Vote", value = "Percentaje", -Departamento)
+
+plotting_df$Percentaje <- plotting_df2$Percentaje
+
+
+## find the order
+temp_df <-
+    plotting_df[plotting_df != 'COLOMBIA', ] %>% 
+    filter(Vote == "Si") %>% 
+    arrange(Count)
+the_order <- temp_df$Departamento
+
+# plot
+p <- 
+    plotting_df[plotting_df != 'COLOMBIA', ] %>% 
+    ggplot(aes(x = Departamento, y = Count, group = Vote, 
+               fill = Vote)) +
+    geom_bar(stat = "identity", width = 0.75) +
+    coord_flip() +
+    scale_x_discrete(limits = the_order) +
+    # another trick!
+    scale_y_continuous(breaks = seq(-1500000, 1500000, 500000), 
+                       labels = abs(seq(-1500000, 1500000, 500000))) +
+    labs(x = "", y = "Votes", title = "Votes for each State") +
+    theme(legend.position = "bottom",
+          legend.title = element_blank(),
+          plot.title = element_text(hjust = 0.5),
+          panel.background = element_rect(fill =  "grey90")) #+
+    # reverse the order of items in legend
+    # guides(fill = guide_legend(reverse = TRUE)) +
+    # change the default colors of bars
+    # scale_fill_manual( values=c("red", "blue"),
+    #                   name="",
+    #                   breaks=c("No", "Si"),
+    #                   labels=c("No", "Si")) 
+
+# print(p)
+
+## find the order for percentaje
+temp_df <-
+    plotting_df[plotting_df != 'COLOMBIA', ] %>% 
+    filter(Vote == "Si") %>% 
+    arrange(Percentaje)
+the_order <- factor(c(as.character(temp_df$Departamento), 
+                      'COLOMBIA'))
+
+# percentaje plot
+pp <- 
+    plotting_df %>% 
+    ggplot(aes(x = Departamento, y = Percentaje, group = Vote, 
+               fill = Vote)) +
+    geom_bar(stat = "identity", width = 0.75) +
+    coord_flip() +
+    scale_x_discrete(limits = the_order) +
+    # another trick!
+    scale_y_continuous(breaks = seq(-100, 100, 25), 
+                       labels = abs(seq(-100, 100, 25))) +
+    labs(x = "", y = "Votes %", title = 
+             "Votes % distribution for each State") +
+    theme(legend.position = "bottom",
+          legend.title = element_blank(),
+          plot.title = element_text(hjust = 0.5),
+          panel.background = element_rect(fill =  "grey90")) #+
+# reverse the order of items in legend
+# guides(fill = guide_legend(reverse = TRUE)) +
+# change the default colors of bars
+# scale_fill_manual( values=c("red", "blue"),
+#                   name="",
+#                   breaks=c("No", "Si"),
+#                   labels=c("No", "Si")) 
+
+# print(pp)
+
+# C. Plotly
+ggplotly(p)
+
+
+```
+
+---
+
+
+```{r p_percentaje, echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+
+# C. Plotly
+ggplotly(pp)
+
+```
+
+---
+
+#### Votes for each State
+
+```{r p_map, echo=FALSE, fig.height=6, fig.width=8, message=FALSE, warning=FALSE}
+
+library(leaflet)
+
+# Colombia.vote <- read.csv('Colombia.vote.csv')
+
+# C. Iconos 
+
+icono.si <- makeIcon(
+    iconUrl = "secure-shield.png",
+    iconWidth = 31*215/230, iconHeight = 31,
+    iconAnchorX = 31*215/230/2, iconAnchorY = 16
+)
+
+icono.no <- makeIcon(
+    iconUrl = "banned.png",
+    iconWidth = 31*215/230, iconHeight = 31,
+    iconAnchorX = 31*215/230/2, iconAnchorY = 16
+)
+
+icono.Colombia <- makeIcon(
+    iconUrl = "banned.png",
+    iconWidth = 42*215/230, iconHeight = 42,
+    iconAnchorX = 42*215/230/2, iconAnchorY = 21
+)
+
+ajustes <- Colombia.vote$winner == 'Yes'
+ajustes2 <- Colombia.vote$departamento == 'COLOMBIA'
+
+# Map
+peace <- leaflet() %>% 
+    addTiles() %>%
+    addMarkers(data = Colombia.vote[ajustes, ],
+               popup = Colombia.vote$legend[ajustes], 
+               icon = icono.si)  %>%
+    addMarkers(data = Colombia.vote[!ajustes & !ajustes2, ],
+               popup = Colombia.vote$legend[!ajustes & !ajustes2], 
+               icon = icono.no) %>%
+    addMarkers(data = Colombia.vote[ajustes2, ],
+               popup = Colombia.vote$legend[ajustes2], 
+               icon = icono.Colombia) 
+
+peace
+
+```
+
+## Thanks!
+
+Sources:
+
+- Voting results: [data.world/juanbeta](https://data.world/juanbeta/colombia-votacin-por-la-paz-si-no-por-departamento)
+
+- Colombia's geographical information: [dane.gov.co](https://geoportal.dane.gov.co/consultadivipola.html)
+
+- Icons made by [Freepik](https://www.flaticon.com/authors/freepik) from [www.flaticon.com](https://www.flaticon.com/) is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/)
+
+- News article: [BBC News, 3 oct 2016](https://www.bbc.com/news/world-latin-america-37537252)
+
+

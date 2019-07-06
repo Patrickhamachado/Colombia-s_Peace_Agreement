@@ -3,13 +3,20 @@
 *Results of Colombia’s peace agreement voting in 2016*
 
 
-[Web page link](https://patrickhamachado.github.io/Colombia-s_Peace_Agreement/Colombia_Peace_Agreement.html)
+[Web page link assignment of week 2](https://patrickhamachado.github.io/Colombia-s_Peace_Agreement/Colombia_Peace_Agreement.html)  
+[Web page link assignment of week 3](https://patrickhamachado.github.io/Colombia-s_Peace_Agreement/Colombia_voting.html)  
 
 --- 
 
-This repo is intended to complete the assignment of the second week of the [Coursera Developing Data Products](https://www.coursera.org/learn/data-products/peer/NLn0H/r-markdown-and-leaflet) course.
+This repo is intended for completing the assignments of the second and third weeks of the [Coursera Developing Data Products](https://www.coursera.org/learn/data-products/peer/NLn0H/r-markdown-and-leaflet) course.
 
-The code for the map construction is in the **Colombia_Peace_Agreement.Rmd** and  **Colombia_Peace_Agreement.html** files. Also, [the HTML page can be viewed here](https://patrickhamachado.github.io/Colombia-s_Peace_Agreement/Colombia_Peace_Agreement.html)
+
+The code for webs construction is in:  
+- **Colombia_Peace_Agreement.Rmd** and **Colombia_Peace_Agreement.html** files for week 2 assignment.  
+- **Colombia_voting.Rmd** and **Colombia_voting.html** files for week 3 assignment. 
+
+Also, the web pages can be viewed [here for assignment of week 2](https://patrickhamachado.github.io/Colombia-s_Peace_Agreement/Colombia_Peace_Agreement.html) and 
+[here for assignment of week 3](https://patrickhamachado.github.io/Colombia-s_Peace_Agreement/Colombia_voting.html)
 
 
 The data and information used comes from:
